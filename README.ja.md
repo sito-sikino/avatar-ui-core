@@ -27,7 +27,10 @@
 ### 必要要件
 
 - Python 3.8以上
-- Google AI Studio APIキー（[取得はこちら](https://aistudio.google.com/app/apikey)）
+- pip (Pythonパッケージマネージャー、通常はPythonに含まれています)
+- APIキー（使用するプロバイダーに応じて）
+  - Google AI Studio APIキー（[取得はこちら](https://aistudio.google.com/app/apikey)）
+  - または OpenAI APIキー（[取得はこちら](https://platform.openai.com/api-keys)）
 
 ### インストール手順
 
@@ -77,12 +80,20 @@ cp .env.example .env
 
 #### 2. APIキーの設定
 
-テキストエディタで`.env`ファイルを開き、必須項目を設定：
+テキストエディタで`.env`ファイルを開き、使用するAIプロバイダーに応じて設定：
 
+**Gemini APIを使用する場合（デフォルト）：**
 ```bash
-# 必須項目のみ変更が必要（他の項目はデフォルト値で動作）
+AI_PROVIDER=gemini
 GEMINI_API_KEY=ここに取得したAPIキーを貼り付け
-MODEL_NAME=gemini-2.0-flash  # または gemini-2.5-pro など
+GEMINI_MODEL_NAME=gemini-2.0-flash  # または gemini-2.5-pro など
+```
+
+**OpenAI APIを使用する場合：**
+```bash
+AI_PROVIDER=openai
+OPENAI_API_KEY=ここに取得したAPIキーを貼り付け
+OPENAI_MODEL_NAME=gpt-4.1-mini  # または gpt-4.1 など
 ```
 
 **重要**: `.env`ファイルには機密情報が含まれるため、絶対にGitにコミットしないでください。
@@ -96,6 +107,11 @@ python app.py
 
 起動に成功すると以下のようなメッセージが表示されます：
 ```
+=== Avatar UI Core ===
+AI Provider: gemini  # または openai
+Model: gemini-2.0-flash  # または gpt-4.1-mini など
+Server running at: http://localhost:5000
+====================
  * Running on http://127.0.0.1:5000
 ```
 
@@ -169,8 +185,13 @@ BEEP_DURATION_MS=30     # 音の長さ（ミリ秒）
 
 | 変数名 | 説明 | デフォルト値 | 必須 |
 |--------|------|-------------|------|
-| `GEMINI_API_KEY` | Google Gemini APIキー | - | ✅ |
-| `MODEL_NAME` | 使用するGeminiモデル | gemini-2.0-flash | ✅ |
+| `AI_PROVIDER` | 使用するAIプロバイダー（gemini/openai） | gemini | ✅ |
+| **Gemini API設定** | | | |
+| `GEMINI_API_KEY` | Google Gemini APIキー | - | ※1 |
+| `GEMINI_MODEL_NAME` | 使用するGeminiモデル | gemini-2.0-flash | |
+| **OpenAI API設定** | | | |
+| `OPENAI_API_KEY` | OpenAI APIキー | - | ※2 |
+| `OPENAI_MODEL_NAME` | 使用するOpenAIモデル | gpt-4.1-mini | |
 | **サーバー設定** | | | |
 | `SERVER_PORT` | サーバーポート番号 | 5000 | |
 | `DEBUG_MODE` | デバッグモード有効化 | True | |
@@ -190,11 +211,15 @@ BEEP_DURATION_MS=30     # 音の長さ（ミリ秒）
 | `BEEP_VOLUME` | ビープ音の音量（0.0-1.0） | 0.05 | |
 | `BEEP_VOLUME_END` | ビープ音終了時の音量 | 0.01 | |
 
+※1: AI_PROVIDER=geminiの場合は必須  
+※2: AI_PROVIDER=openaiの場合は必須
+
 ## 技術スタック
 
 ### バックエンド
 - **Flask 3.0.0** - Webアプリケーションフレームワーク
 - **google-generativeai 0.8.3** - Gemini API統合
+- **openai 1.101.0** - OpenAI API統合
 - **python-dotenv 1.0.0** - 環境変数管理
 
 ### フロントエンド
