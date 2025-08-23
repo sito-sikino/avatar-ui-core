@@ -1,26 +1,30 @@
+<!-- AIチャットインターフェース：ターミナル風UIでAIアシスタントと対話 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spectra Communicator</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>{{ config.avatar_full_name }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
+    <!-- ターミナル風UI -->
     <div class="terminal">
         <div class="chat-area">
             <div class="chat-container">
+                <!-- チャット出力エリア -->
                 <div class="output" id="output">
-                    <div class="line system">&gt; SYSTEM: Spectra Communicator Online</div>
-                    <div class="line system">&gt; AI Chat Ready</div>
+                    <div class="line system">&gt; SYSTEM: {{ config.avatar_full_name }} Online</div>
                 </div>
                 
+                <!-- アバター表示エリア -->
                 <div class="avatar-area">
-                    <img id="avatar-img" src="/static/avatar_closed.png" alt="SPECTRA">
-                    <div class="avatar-label">SPECTRA</div>
+                    <img id="avatar-img" src="/static/images/{{ config.avatar_image_idle }}" alt="{{ config.avatar_name|upper }}">
+                    <div class="avatar-label">{{ config.avatar_name|upper }}</div>
                 </div>
             </div>
             
+            <!-- 入力エリア -->
             <div class="input-line">
                 <span class="prompt">&gt;</span>
                 <input type="text" id="input" autofocus>
@@ -29,120 +33,21 @@
     </div>
 
     <script>
-        const output = document.getElementById('output');
-        const input = document.getElementById('input');
-        
-        
-        // エンター押下でメッセージ送信
-        input.addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter' && input.value.trim()) {
-                const message = input.value;
-                input.value = '';
-                
-                addLine(message, 'user');
-                
-                // AIに送信
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({message})
-                });
-                
-                const data = await response.json();
-                addLine(data.response, 'ai');
-            }
-        });
-        
-        
-        // メッセージを画面に追加
-        function addLine(text, type) {
-            const line = document.createElement('div');
-            line.className = 'line ' + type;
-            
-            if (type === 'user') {
-                line.innerHTML = `<span class="user-prompt">USER&gt;</span> ${text}`;
-                output.appendChild(line);
-            } else if (type === 'ai') {
-                // AIメッセージはタイプライター演出
-                line.innerHTML = `<span class="ai-prompt">Spectra&gt;</span> <span class="ai-text"></span>`;
-                output.appendChild(line);
-                typeWriter(line.querySelector('.ai-text'), text);
-                return;
-            } else {
-                line.textContent = text;
-                output.appendChild(line);
-            }
-            
-            output.scrollTop = output.scrollHeight;
-        }
-        
-        // 口パクアニメーション用変数
-        let talkingInterval = null;
-        
-        // タイプ音生成
-        function createTypeSound() {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            function playBeep() {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // ドラクエ風の音設定
-                oscillator.type = 'square';
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime); // 高めの音
-                
-                // 音量設定（小さめ）
-                gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.05); // 50ms
-            }
-            
-            return playBeep;
-        }
-        
-        const playTypeSound = createTypeSound();
-        
-        // 1文字ずつ表示
-        const typewriterDelay = {{ config.typewriter_delay }};
-        function typeWriter(element, text) {
-            let i = 0;
-            const avatarImg = document.getElementById('avatar-img');
-            
-            // 口パクアニメーション開始
-            let mouthOpen = false;
-            talkingInterval = setInterval(() => {
-                avatarImg.src = mouthOpen ? '/static/avatar_open.png' : '/static/avatar_closed.png';
-                mouthOpen = !mouthOpen;
-            }, 150); // 150msごとに切り替え
-            
-            function type() {
-                if (i < text.length) {
-                    element.textContent += text.charAt(i++);
-                    output.scrollTop = output.scrollHeight;
-                    
-                    // スペース以外の文字で音を鳴らす
-                    if (text.charAt(i-1) !== ' ') {
-                        try {
-                            playTypeSound();
-                        } catch (e) {
-                            // 音声再生エラーは無視
-                        }
-                    }
-                    
-                    setTimeout(type, typewriterDelay);
-                } else {
-                    // タイプライター完了
-                    clearInterval(talkingInterval);
-                    avatarImg.src = '/static/avatar_closed.png'; // 口を閉じる
-                }
-            }
-            type();
-        }
+        // 設定値をJavaScript変数に格納
+        const appConfig = {
+            typewriterDelay: {{ config.typewriter_delay | tojson }},
+            avatarName: {{ config.avatar_name | tojson }},
+            mouthAnimationInterval: {{ config.mouth_animation_interval | tojson }},
+            beepFrequency: {{ config.beep_frequency | tojson }},
+            beepDuration: {{ config.beep_duration | tojson }},
+            beepVolume: {{ config.beep_volume | tojson }},
+            beepVolumeEnd: {{ config.beep_volume_end | tojson }},
+            avatarImageIdle: {{ config.avatar_image_idle | tojson }},
+            avatarImageTalk: {{ config.avatar_image_talk | tojson }}
+        };
     </script>
+    
+    <!-- モジュールを読み込み -->
+    <script type="module" src="/static/js/app.js"></script>
 </body>
 </html>
