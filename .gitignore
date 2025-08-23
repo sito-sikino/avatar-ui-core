@@ -21,5 +21,4 @@ Thumbs.db
 .env.backup
 
 # Project specific
-docs/
 .claude/
