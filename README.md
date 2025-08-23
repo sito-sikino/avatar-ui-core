@@ -12,13 +12,13 @@
 - **AIアバター** - 発話同期型のピクセルアートアバター表示
 - **タイプライター効果** - 文字単位のリアルタイム表示アニメーション
 - **サウンドエフェクト** - Web Audio APIによるタイピング音生成
-- **環境変数設定** - dotenvを使用した設定の外部化
+- **完全な設定管理** - すべての動作パラメータを`.env`ファイルで一元管理
 
-## 使い方（エンドユーザー向け）
+## 基本操作
 
 1. **メッセージ送信**: 画面下部の入力欄にテキストを入力してEnterキー
 2. **会話履歴**: 自動的にスクロールされる会話履歴を確認
-3. **アバター**: AIの応答中はアバターが口パクアニメーション
+3. **アバター**: AIの応答中はアバターが応答アニメーション
 
 ## クイックスタート
 
@@ -75,12 +75,12 @@ cp .env.example .env
 
 #### 2. APIキーの設定
 
-テキストエディタで`.env`ファイルを開き、取得したAPIキーを設定：
+テキストエディタで`.env`ファイルを開き、必須項目を設定：
 
 ```bash
-# .envファイルの内容
+# 必須項目のみ変更が必要（他の項目はデフォルト値で動作）
 GEMINI_API_KEY=ここに取得したAPIキーを貼り付け
-MODEL_NAME=gemini-2.0-flash
+MODEL_NAME=gemini-2.0-flash  # または gemini-2.5-pro など
 ```
 
 **重要**: `.env`ファイルには機密情報が含まれるため、絶対にGitにコミットしないでください。
@@ -99,15 +99,7 @@ python app.py
 
 ブラウザで `http://localhost:5000` にアクセスしてください。
 
-### デバッグモード
-
-開発時は`.env`で`DEBUG_MODE=True`を設定して詳細なエラー情報を取得：
-
-```bash
-DEBUG_MODE=True  # 本番環境では必ずFalseに
-```
-
-### ディレクトリ構造
+## プロジェクト構造
 
 ```
 avatar-ui-core/
@@ -131,51 +123,68 @@ avatar-ui-core/
     └── index.html         # HTMLテンプレート
 ```
 
-### カスタマイズ方法
+## カスタマイズ方法
 
-#### 1. アバターの変更
-`static/images/`内の画像ファイルを差し替え：
-- `idle.png`: 静止時のアバター（推奨: 140x140px）
-- `talk.png`: 発話時のアバター（推奨: 140x140px）
+すべての設定は`.env`ファイルで調整できます。
 
-#### 2. AIの性格設定
-`.env`ファイルに以下を追加：
+### 1. アバターの変更
+
+画像ファイルを差し替える
+- `static/images/idle.png`: 静止時のアバター（推奨: 140x140px）
+- `static/images/talk.png`: 発話時のアバター（推奨: 140x140px）
+
+### 2. AIの人格設定
+`.env`ファイルで以下の項目を編集：
 ```bash
-AVATAR_NAME=MyAssistant
-SYSTEM_INSTRUCTION=あなたは親切で丁寧なアシスタントです。
+AVATAR_NAME=Spectra
+AVATAR_FULL_NAME=Spectra Communicator
+SYSTEM_INSTRUCTION=あなたはSpectraというAIアシスタントです。技術的で直接的なスタイルで簡潔に応答してください。回答は短く要点を押さえたものにしてください。
 ```
 
-#### 3. UI速度調整
-`.env`ファイルで調整可能：
+### 3. UI動作の調整
+`.env`ファイルで各種速度を調整：
 ```bash
-TYPEWRITER_DELAY_MS=30          # タイピング速度（小さいほど高速）
-MOUTH_ANIMATION_INTERVAL_MS=100  # 口パク速度
+# タイピング速度（ミリ秒、小さいほど高速）
+TYPEWRITER_DELAY_MS=30
+
+# 口パクアニメーション間隔（ミリ秒）
+MOUTH_ANIMATION_INTERVAL_MS=100
 ```
 
-#### 4. サウンド設定
+### 4. サウンド設定
+`.env`ファイルで音響効果をカスタマイズ：
 ```bash
-BEEP_FREQUENCY_HZ=600   # 音の高さ
-BEEP_VOLUME=0.1         # 音量（0-1）
-BEEP_DURATION_MS=30     # 音の長さ
+BEEP_FREQUENCY_HZ=600   # 音の高さ（Hz）
+BEEP_VOLUME=0.1         # 音量（0.0-1.0）
+BEEP_DURATION_MS=30     # 音の長さ（ミリ秒）
 ```
+
+**注意**: 設定変更後はアプリケーションの再起動が必要です。
 
 ## 環境変数一覧
 
 | 変数名 | 説明 | デフォルト値 | 必須 |
 |--------|------|-------------|------|
 | `GEMINI_API_KEY` | Google Gemini APIキー | - | ✅ |
-| `MODEL_NAME` | 使用するGeminiモデル | - | ✅ |
-| `AVATAR_NAME` | AIアシスタントの名前 | Spectra | - |
-| `AVATAR_FULL_NAME` | AIアシスタントのフルネーム | Spectra Communicator | - |
-| `SYSTEM_INSTRUCTION` | AIの性格・応答スタイル | 技術的で簡潔な応答 | - |
-| `SERVER_PORT` | サーバーポート番号 | 5000 | - |
-| `DEBUG_MODE` | デバッグモード有効化 | True | - |
-| `TYPEWRITER_DELAY_MS` | タイプライター効果の速度 | 50 | - |
-| `MOUTH_ANIMATION_INTERVAL_MS` | 口パクアニメーション間隔 | 150 | - |
-| `BEEP_FREQUENCY_HZ` | ビープ音の周波数 | 800 | - |
-| `BEEP_DURATION_MS` | ビープ音の長さ | 50 | - |
-| `BEEP_VOLUME` | ビープ音の音量 | 0.05 | - |
-| `BEEP_VOLUME_END` | ビープ音終了時の音量 | 0.01 | - |
+| `MODEL_NAME` | 使用するGeminiモデル | gemini-2.0-flash | ✅ |
+| **サーバー設定** | | | |
+| `SERVER_PORT` | サーバーポート番号 | 5000 | |
+| `DEBUG_MODE` | デバッグモード有効化 | True | |
+| **アバター設定** | | | |
+| `AVATAR_NAME` | AIアシスタントの名前 | Spectra | |
+| `AVATAR_FULL_NAME` | AIアシスタントのフルネーム | Spectra Communicator | |
+| `AVATAR_IMAGE_IDLE` | 静止時のアバター画像 | idle.png | |
+| `AVATAR_IMAGE_TALK` | 発話時のアバター画像 | talk.png | |
+| **AI性格設定** | | | |
+| `SYSTEM_INSTRUCTION` | AIの人格や応答スタイル | 技術的で簡潔な応答 | |
+| **UI設定** | | | |
+| `TYPEWRITER_DELAY_MS` | タイプライター効果の速度（ミリ秒） | 50 | |
+| `MOUTH_ANIMATION_INTERVAL_MS` | 口パクアニメーション間隔（ミリ秒） | 150 | |
+| **サウンド設定** | | | |
+| `BEEP_FREQUENCY_HZ` | ビープ音の周波数（Hz） | 800 | |
+| `BEEP_DURATION_MS` | ビープ音の長さ（ミリ秒） | 50 | |
+| `BEEP_VOLUME` | ビープ音の音量（0.0-1.0） | 0.05 | |
+| `BEEP_VOLUME_END` | ビープ音終了時の音量 | 0.01 | |
 
 ## 技術スタック
 

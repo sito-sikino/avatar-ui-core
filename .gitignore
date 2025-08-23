@@ -18,3 +18,8 @@ Thumbs.db
 *.tmp
 *.swp
 *~
+.env.backup
+
+# Project specific
+docs/
+.claude/
