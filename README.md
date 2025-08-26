@@ -226,6 +226,14 @@ BEEP_DURATION_MS=30     # Duration (milliseconds)
 - **CSS3** - Modern styling
 - **Fira Code** - Programming font
 
+## ⚠️ Important Notes
+
+- This project is provided as a naked UI foundation, with default implementation designed for single-user use.
+- Sensitive information such as API keys is stored in `.env` and used only on the server side.
+- Suitable for personal use and learning purposes as-is, but when deploying for public access:
+  - User-specific configuration storage required
+  - Authentication mechanisms must be added
+
 ## License
 
 MIT License - See [LICENSE](LICENSE) file for details
