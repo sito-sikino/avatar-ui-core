@@ -1,6 +1,7 @@
 """
 設定管理モジュール - .envファイルから全設定を読み込み
 """
+
 import os
 from dotenv import load_dotenv
 
@@ -11,9 +12,28 @@ load_dotenv()
 # 必須設定（環境変数が設定されていない場合はエラー）
 # ===========================================
 
-# AI設定
-GEMINI_API_KEY = os.environ['GEMINI_API_KEY']  # Gemini APIキー
-MODEL_NAME = os.environ['MODEL_NAME']  # 使用するGeminiモデル
+# AIプロバイダー選択
+AI_PROVIDER = os.getenv('AI_PROVIDER', 'gemini').lower()  # gemini または openai
+
+# プロバイダー別のAPI設定
+if AI_PROVIDER == 'openai':
+    # OpenAI API設定
+    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+    if not OPENAI_API_KEY:
+        raise ValueError('AI_PROVIDER=openai is set but OPENAI_API_KEY is not found')
+    MODEL_NAME = os.getenv('OPENAI_MODEL_NAME', 'gpt-4.1-mini')
+
+elif AI_PROVIDER == 'gemini':
+    # Gemini API設定
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+    if not GEMINI_API_KEY:
+        raise ValueError('AI_PROVIDER=gemini is set but GEMINI_API_KEY is not found')
+    MODEL_NAME = os.getenv('GEMINI_MODEL_NAME', 'gemini-2.0-flash')
+
+else:
+    raise ValueError(
+        f'Unsupported AI provider: {AI_PROVIDER}. Please specify gemini or openai.'
+    )
 
 # ===========================================
 # 任意設定（デフォルト値あり）

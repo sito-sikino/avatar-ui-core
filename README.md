@@ -28,7 +28,9 @@ A classic terminal-style UI core. Provides an extensible project foundation from
 
 - Python 3.8 or higher (Check version: `python --version` or `python3 --version`)
 - pip (Python package manager, usually included with Python)
-- Google AI Studio API Key ([Get it here](https://aistudio.google.com/app/apikey))
+- API Key (depending on your chosen provider):
+  - Google AI Studio API Key ([Get it here](https://aistudio.google.com/app/apikey))
+  - Or OpenAI API Key ([Get it here](https://platform.openai.com/api-keys))
 
 ### Installation
 
@@ -78,12 +80,20 @@ cp .env.example .env
 
 #### 2. Set API Key
 
-Open `.env` file in a text editor and configure required settings:
+Open `.env` file in a text editor and configure based on your chosen AI provider:
 
+**For Gemini API (default):**
 ```bash
-# Only required items need to be changed (others use default values)
+AI_PROVIDER=gemini
 GEMINI_API_KEY=paste_your_api_key_here
-MODEL_NAME=gemini-2.0-flash  # or gemini-1.5-pro etc.
+GEMINI_MODEL_NAME=gemini-2.0-flash  # or gemini-1.5-pro etc.
+```
+
+**For OpenAI API:**
+```bash
+AI_PROVIDER=openai
+OPENAI_API_KEY=paste_your_api_key_here
+OPENAI_MODEL_NAME=gpt-4.1-mini  # or gpt-4.1 etc.
 ```
 
 Other settings (avatar name, UI speed, sound effects) have default values and work out of the box. You can customize them later as needed.
@@ -99,6 +109,11 @@ python app.py
 
 On successful launch, you'll see:
 ```
+=== Avatar UI Core ===
+AI Provider: gemini  # or openai
+Model: gemini-2.0-flash  # or gpt-4.1-mini etc.
+Server running at: http://localhost:5000
+====================
  * Running on http://127.0.0.1:5000
 ```
 
@@ -192,8 +207,13 @@ BEEP_DURATION_MS=30     # Duration (milliseconds)
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `GEMINI_API_KEY` | Google Gemini API Key | - | ✅ |
-| `MODEL_NAME` | Gemini model to use | gemini-2.0-flash | ✅ |
+| `AI_PROVIDER` | AI provider to use (gemini/openai) | gemini | ✅ |
+| **Gemini API Settings** | | | |
+| `GEMINI_API_KEY` | Google Gemini API Key | - | ※1 |
+| `GEMINI_MODEL_NAME` | Gemini model to use | gemini-2.0-flash | |
+| **OpenAI API Settings** | | | |
+| `OPENAI_API_KEY` | OpenAI API Key | - | ※2 |
+| `OPENAI_MODEL_NAME` | OpenAI model to use | gpt-4.1-mini | |
 | **Server Settings** | | | |
 | `SERVER_PORT` | Server port number | 5000 | |
 | `DEBUG_MODE` | Enable debug mode | True | |
@@ -213,11 +233,15 @@ BEEP_DURATION_MS=30     # Duration (milliseconds)
 | `BEEP_VOLUME` | Beep volume (0.0-1.0) | 0.05 | |
 | `BEEP_VOLUME_END` | Beep end volume | 0.01 | |
 
+※1: Required when AI_PROVIDER=gemini  
+※2: Required when AI_PROVIDER=openai
+
 ## Tech Stack
 
 ### Backend
 - **Flask 3.0.0** - Web application framework
 - **google-generativeai 0.8.3** - Gemini API integration
+- **openai 1.101.0** - OpenAI API integration
 - **python-dotenv 1.0.0** - Environment variable management
 
 ### Frontend
